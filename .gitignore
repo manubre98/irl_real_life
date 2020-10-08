@@ -1,0 +1,8 @@
+*/png
+.idea/
+__pycache__/
+.DS_Store
+*.png
+*.svg
+.ipynb_checkpoints/
+/venv/
