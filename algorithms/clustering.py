@@ -72,6 +72,7 @@ def em_clustering(mus, sigmas, ids, lamb=1, num_clusters=2, num_objectives=3, ma
                 break
         # perturbation of assignment
         prev_assignment = np.copy(p)
+    prob = np.copy(best_assignment)
     if it == max_iterations:
         if verbose:
             print("Finished %d iterations without converging" % max_iterations)
@@ -87,7 +88,7 @@ def em_clustering(mus, sigmas, ids, lamb=1, num_clusters=2, num_objectives=3, ma
         w, loss = weight_calculator(best_assignment[i])
         best_weights[i] = w
         new_loss += loss
-    return best_assignment, best_weights, min_loss
+    return best_assignment, best_weights, min_loss, prob
 
 
 def solve_exact(mus, sigmas, ids, num_clusters=2, num_objectives=3, verbose=False, optimization_iterations=10,

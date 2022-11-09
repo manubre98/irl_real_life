@@ -6,6 +6,7 @@ import baselines.common.tf_util as U
 from baselines.common.models import mlp
 import pickle
 from policies.linear_gaussian_policy import LinearGaussianPolicy
+from algorithms.gpomdp import *
 
 
 def unit_vector(vector):
@@ -45,6 +46,54 @@ def check_minimum(pi,behavioral_pi, omega, trajectories,episode_length=50, use_b
     print(angle)
     input()
     return angle
+
+def compute_gradient_usa(pi, x_dataset, y_dataset, r_dataset,
+                       episode_length, discount_f=1., features_idx=[0, 1, 2],
+                       omega=None, normalize_f=False, verbose=False, years_step=1,
+                       use_baseline=True, use_mask=False, scale_features=1, behavioral_pi=None, filter_gradients=False,
+                       seed=None, discrete=False):
+    states = []
+    actions = []
+    features = []
+
+    base = 0
+    stepsize = 365
+    num_years = int(len(x_dataset) / 365)
+    while base < num_years * 365:
+        st = x_dataset[base:base + episode_length]
+        act = y_dataset[base:base + episode_length]
+        ft = r_dataset[base:base + episode_length]
+        states.append(st)
+        actions.append(act)
+        features.append(ft)
+        base += stepsize
+
+    states = np.array(states)
+    actions = np.array(actions)
+    features = np.array(features)
+
+    grads = []
+    for i in range(states.shape[0]):
+        grads.append([])
+        for j in range(states.shape[1]):
+            st = states[i, j]
+            action = actions[i, j]
+            step_layers, _, _, _, _ = pi.compute_gradients(st, action)
+            step_gradients = []
+            for layer in step_layers:
+                step_gradients.append(layer.ravel())
+            step_gradients = np.concatenate(step_gradients)
+
+            if np.isnan(step_gradients).any():
+                print("NAN Grad")
+            if (np.abs(step_gradients) > 10000).any():
+                print("Big Grad")
+            grads[i].append(step_gradients.tolist())
+    gradients = np.array(grads)
+    G = GPOMDP(gradients, gamma=discount_f, rewards=features)
+    gradients = G.eval_gpomdp(normalize_features=normalize_f)
+    gradients = filter_grads(gradients, verbose=True)
+    return gradients
 
 
 def compute_gradient(pi, x_dataset, y_dataset, r_dataset,

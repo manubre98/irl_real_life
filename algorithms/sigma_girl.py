@@ -64,7 +64,7 @@ def solve_PGIRL(estimated_gradients, verbose=False, solver='quadprog', seed=1234
 
 
 def solve_sigma_PGIRL(estimated_gradients, cov_estimation=False, diag=False, identity=False, seed=None, verbose=False,
-                      num_iters=10, compute_jacobian=False, girl=False, other_options=None):
+                      num_iters=30, compute_jacobian=False, girl=False, other_options=None):
     assert ((cov_estimation or diag) != identity or cov_estimation == diag == identity == False)
 
     num_episodes, num_parameters, num_objectives = estimated_gradients.shape[:]

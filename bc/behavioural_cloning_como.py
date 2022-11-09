@@ -114,7 +114,7 @@ def behavioral_cloning_nn(num_epochs, num_layers, num_hidden, X, Y, validation =
         # train
         if validation > 0.:
             target = y_val
-            accuracy, _, loss = policy_train.evaluate(X_val[:], target, False)
+            accuracy, _, loss, _ = policy_train.evaluate(X_val[:], target, False)
             if epoch % 1 == 0 and loss <= best_loss:
                 best_loss = loss
         else:
@@ -137,7 +137,7 @@ def behavioral_cloning_nn(num_epochs, num_layers, num_hidden, X, Y, validation =
         # validation
     if validation > 0.:
         target = y_val
-        accuracy, _, loss = policy_train.evaluate(X_val[:], target, False)
+        accuracy, _, loss, _ = policy_train.evaluate(X_val[:], target, False)
         summary = tf.Summary(value=[tf.Summary.Value(tag="accuracy", simple_value=accuracy),
                                     tf.Summary.Value(tag="test_loss", simple_value=loss)])
         if num_epochs % 1 == 0 and loss <= best_loss:
@@ -168,7 +168,7 @@ def behavioral_clonning_linear(X, Y, noise=None, name=''):
     ll = -np.sum(- 0.5 * np.log(2 * np.pi) - np.log(std) - 0.5 * (predictions - train_label) ** 2 / (
                 std ** 2 + 1e-10))
 
-    #print("R2 Score:" + str(regr.score(X, Y)))
+    print("R2 Score:" + str(regr.score(X, Y)))
 
     logger = {
         'training_samples': len(train_data),
